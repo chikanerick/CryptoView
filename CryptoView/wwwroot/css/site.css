@@ -1,0 +1,54 @@
+html {
+  font-size: 14px;
+}
+@font-face {
+    font-family: 'GolosText'; /* Название вашего шрифта */
+    src: url('/GolosText-VariableFont_wght.ttf') format('truetype'); /* Путь к вашему файлу шрифта */
+    /* Другие параметры шрифта, например, начертание и вес */
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
+h1{
+    font-size: 70px;
+}
+
+.gradient-line {
+    height: 1px; /* Высота линии */
+    margin-top: 40px;
+    background: linear-gradient(to right, transparent, black, transparent); /* Градиент от прозрачного к черному и обратно */
+}
+
+/* Стили для кнопки */
+.custom-button {
+    border: 2px solid #000; /* Ширина и цвет границы */
+    border-radius: 20px; /* Радиус скругления углов */
+    padding: 10px 20px; /* Отступы внутри кнопки */
+    background-color: transparent; /* Прозрачный фон */
+    color: #000; /* Цвет текста */
+    transition: background-color 0.3s, color 0.3s; /* Плавное изменение цвета при наведении */
+}
+
+    /* Стили при наведении */
+    .custom-button:hover {
+        background-color: #000; /* Цвет фона при наведении */
+        color: #fff; /* Цвет текста при наведении */
+    }
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    font-family: 'GolosText', sans-serif; /* Использование вашего шрифта */
+    margin-bottom: 60px;
+}
