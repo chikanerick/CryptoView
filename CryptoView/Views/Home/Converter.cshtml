@@ -6,7 +6,7 @@
     <title>Cryptocurrency Converter</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+     
         }
 
         .converter-container {
@@ -16,7 +16,7 @@
             border-radius: 10px;
             background-color: transparent;
             border: 2px solid black;
-            text-align: center; /* Выравнивание содержимого по центру */
+            text-align: center;
         }
 
         .input-group {
@@ -34,18 +34,18 @@
         .custom-button {
             display: inline-block;
             margin:10px;
-            border: 2px solid #000; /* Ширина и цвет границы */
-            border-radius: 20px; /* Радиус скругления углов */
-            padding: 10px 20px; /* Отступы внутри кнопки */
-            background-color: transparent; /* Прозрачный фон */
-            color: #000; /* Цвет текста */
-            transition: background-color 0.3s, color 0.3s; /* Плавное изменение цвета при наведении */
+            border: 2px solid #000; 
+            border-radius: 20px; 
+            padding: 10px 20px; 
+            background-color: transparent; 
+            color: #000; 
+            transition: background-color 0.3s, color 0.3s; 
         }
 
-    /* Стили         при наведении */
+
             .custom-button:hover {
-                background-color: #000; /* Цвет фона при наведении */
-                color: #fff; /* Цвет текста при наведении */
+                background-color: #000; 
+                color: #fff; 
             }
     </style>
 </head>
@@ -64,7 +64,7 @@
     </div>
 
     <script>
-        // Функция для загрузки списка криптовалют из Cryptocompare API
+        
         async function loadCurrencies() {
             try {
                 const response = await fetch('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD');
@@ -73,11 +73,11 @@
                 const fromCurrencySelect = document.getElementById('fromCurrency');
                 const toCurrencySelect = document.getElementById('toCurrency');
 
-                // Очищаем списки перед добавлением новых данных
+       
                 fromCurrencySelect.innerHTML = '';
                 toCurrencySelect.innerHTML = '';
 
-                // Добавляем варианты криптовалют в выпадающие списки
+            
                 data.Data.forEach(currency => {
                     const option = new Option(`${currency.CoinInfo.FullName} (${currency.CoinInfo.Name})`, currency.CoinInfo.Name);
                     fromCurrencySelect.add(option);
@@ -88,7 +88,7 @@
             }
         }
 
-        // Функция для обмена местами выбранных криптовалют
+  
         function swapCurrencies() {
             const fromCurrencySelect = document.getElementById('fromCurrency');
             const toCurrencySelect = document.getElementById('toCurrency');
@@ -97,7 +97,7 @@
             toCurrencySelect.value = temp;
         }
 
-        // Функция для конвертации криптовалюты
+
         async function convert() {
             const fromCurrency = document.getElementById('fromCurrency').value;
             const toCurrency = document.getElementById('toCurrency').value;
@@ -116,7 +116,7 @@
             }
         }
 
-        // Загружаем список криптовалют при загрузке страницы
+
         window.addEventListener('DOMContentLoaded', () => {
             loadCurrencies();
         });

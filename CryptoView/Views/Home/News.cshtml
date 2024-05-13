@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Добавим стили для элементов новостей */
+        .news-item {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+            .news-item img {
+                width: 200px; /* Ширина картинки */
+                height: auto; /* Автоматическая высота */
+                margin-right: 20px; /* Отступ справа */
+                border-radius: 15px;
+            }
+
+        .news-details {
+            flex: 1; /* Занимает оставшееся пространство в строке */
+        }
+
+            .news-details h2 {
+                font-size: 1.2em; /* Размер заголовка */
+                margin-top: 0; /* Убираем верхний отступ */
+            }
+
+            .news-details p {
+                margin-top: 5px; /* Отступ сверху для описания */
+            }
+
+        .source-link {
+            color: blue; /* Цвет ссылки */
+            text-decoration: none; /* Убираем подчеркивание */
+        }
+
+            .source-link:hover {
+                text-decoration: underline; /* Добавляем подчеркивание при наведении */
+            }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Новости</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Поиск...">
+            <button class="custom-button" onclick="searchNews()">Поиск</button>
+        </div>
+
+        <div class="categories">
+            <button class="custom-button" onclick="filterByCategory('Криптовалюта')">Криптовалюта</button>
+            <button class="custom-button" onclick="filterByCategory('Bitcoin')">Bitcoin</button>
+            <button class="custom-button" onclick="filterByCategory('blockchain')">blockchain</button>
+            <button class="custom-button" onclick="filterByCategory('Эфириум')">Etherium</button>
+            <!-- Добавьте другие категории по вашему выбору -->
+        </div>
+        <div class="gradient-line"></div>
+    </header>
+
+    <main id="newsList" style="margin-top: 40px;">
+        <!-- Здесь будет отображаться список новостей -->
+    </main>
+
+    <script>
+        async function getNews(category = '') {
+            const apiKey = '42e3486c6ce449cca63ff0636b7d85d4';
+            const url = `https://newsapi.org/v2/everything?q=${category}&language=ru&apiKey=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.articles;
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                return [];
+            }
+        }
+
+        async function displayNews(category = '') {
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = ''; // Очищаем предыдущие новости
+
+            const news = await getNews(category);
+            news.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.classList.add('news-item');
+
+                const image = document.createElement('img');
+                image.src = article.urlToImage ? article.urlToImage : 'placeholder.jpg'; // Подставляем заглушку, если нет изображения
+                image.alt = 'News Image';
+
+                const newsDetails = document.createElement('div');
+                newsDetails.classList.add('news-details');
+
+                const title = document.createElement('h2');
+                title.textContent = article.title;
+
+                const description = document.createElement('p');
+                description.textContent = article.description;
+
+                const sourceLink = document.createElement('a');
+                sourceLink.href = article.url;
+                sourceLink.textContent = 'Читать дальше';
+
+                newsDetails.appendChild(title);
+                newsDetails.appendChild(description);
+                newsDetails.appendChild(sourceLink);
+
+                newsItem.appendChild(image);
+                newsItem.appendChild(newsDetails);
+
+                newsList.appendChild(newsItem);
+            });
+        }
+
+        function searchNews() {
+            const searchInput = document.getElementById('searchInput').value;
+            displayNews(searchInput);
+        }
+
+        function filterByCategory(category) {
+            displayNews(category);
+        }
+
+        // Загружаем список новостей при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            displayNews('Криптовалюта');
+        });
+    </script>
+</body>
+</html>
