@@ -2,16 +2,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Net.Http;
 
 namespace CryptoView.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
+        private readonly HttpClient _httpClient;
         public HomeController(ILogger<HomeController> logger)
         {
+            
             _logger = logger;
+            _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri("https://api.coingecko.com/api/v3/");
         }
 
         public IActionResult Index()
@@ -33,6 +37,7 @@ namespace CryptoView.Controllers
         [Authorize]
         public IActionResult Market()
         {
+
             return View();
         }
 

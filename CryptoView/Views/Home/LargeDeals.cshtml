@@ -1,4 +1,108 @@
-﻿@page
-@model CryptoView.Views.Home.LargeDealsModel
-@{
+﻿<h1>Просмотр транзакций</h1>
+
+<div style="display: flex; align-items: center;">
+    <div style="margin-right: 10px;">
+        <label for="minValue">Мин. значение (ETH):</label>
+        <input type="number" id="minValue" min="0" step="0.01" value="1" style="border: 1px solid black; border-radius: 5px; padding: 8px;">
+    </div>
+    <div style="margin-right: 10px;">
+        <label for="address">Адрес:</label>
+        <input type="text" id="address" value="0x881D40237659C251811CEC9c364ef91dC08D300C" style="border: 1px solid black; border-radius: 5px; padding: 8px;">
+    </div>
+    <button class="custom-button" onclick="applyFilters()">Применить</button>
+</div>
+
+<div id="loadingIndicator" style="display: none;">
+    <p>Идет загрузка...</p>
+
+</div>
+
+<div id="largeTransactionsTable">
+
+</div>
+
+@section scripts {
+    <script>
+
+        let currentPage = 1;
+        let minValue = 1; 
+        let address = '0x881D40237659C251811CEC9c364ef91dC08D300C'; 
+        const transactionsPerPage = 10;
+
+
+        async function loadLargeTransactions(page) {
+            try {
+                const apiKey = '2JTFQCT9HUMQXEBRW1FRIUH4PM7P1KMTY2';
+                const startBlock = 0;
+                const endBlock = 99999999;
+                const offset = (page - 1) * transactionsPerPage;
+
+                const apiUrl = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}&offset=${offset}&page=1&limit=${transactionsPerPage}`;
+
+
+                document.getElementById('loadingIndicator').style.display = 'block';
+
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === '1') {
+
+                    const table = document.createElement('table');
+                    table.classList.add('table');
+
+
+                    const tableHeader = table.createTHead();
+                    const headerRow = tableHeader.insertRow();
+                    ['Transaction Hash', 'From', 'To', 'Value (ETH)'].forEach(text => {
+                        const th = document.createElement('th');
+                        th.textContent = text;
+                        headerRow.appendChild(th);
+                    });
+
+
+                    const tableBody = table.createTBody();
+                    data.result.forEach(transaction => {
+
+                        const valueInEther = parseFloat(transaction.value) / 1e18;
+
+
+                        if (valueInEther >= minValue) {
+                            const row = tableBody.insertRow();
+                            const cellHash = row.insertCell();
+                            cellHash.textContent = transaction.hash;
+                            const cellFrom = row.insertCell();
+                            cellFrom.textContent = transaction.from;
+                            const cellTo = row.insertCell();
+                            cellTo.textContent = transaction.to;
+                            const cellValue = row.insertCell();
+                            cellValue.textContent = valueInEther.toFixed(2); 
+                        }
+                    });
+
+
+                    const largeTransactionsTable = document.getElementById('largeTransactionsTable');
+                    largeTransactionsTable.innerHTML = '';
+                    largeTransactionsTable.appendChild(table);
+
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                } else {
+                    console.error('Failed to load large transactions:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading large transactions:', error);
+            }
+        }
+
+
+        function applyFilters() {
+            minValue = parseFloat(document.getElementById('minValue').value);
+            address = document.getElementById('address').value;
+            loadLargeTransactions(currentPage);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLargeTransactions(currentPage);
+        });
+    </script>
 }

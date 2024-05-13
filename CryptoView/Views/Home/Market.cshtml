@@ -1,4 +1,254 @@
-﻿@page
-@model CryptoView.Views.Home.MarketModel
-@{
-}
+﻿<h3>Топ 3</h3>
+
+<div class="crypto-container" id="cryptoContainer">
+    <!-- Crypto blocks will be populated dynamically by JavaScript -->
+</div>
+
+<h3>Список криптовалют</h3>
+<input style="border-radius:15px;" type="text" id="searchInput" placeholder="Поиск...">
+<ul class="crypto-list" id="cryptoList">
+    <!-- Crypto items will be populated dynamically by JavaScript -->
+</ul>
+
+<div class="crypto-info-container" id="cryptoInfoContainer">
+    <!-- Crypto info will be populated dynamically by JavaScript -->
+</div>
+
+<script>
+    async function fetchTop3CryptoData() {
+        try {
+            const response = await fetch('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=3&tsym=USD'); // Получаем топ-3 криптовалют
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const { Data } = await response.json();
+            return Data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function fetchCryptoData() {
+        try {
+            const response = await fetch('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=USD'); // Получаем топ-10 криптовалют
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const { Data } = await response.json();
+            return Data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function populateTop3CryptoBlocks() {
+        const top3CryptoData = await fetchTop3CryptoData();
+        const cryptoContainer = document.querySelector('#cryptoContainer');
+
+        top3CryptoData.forEach(crypto => {
+            const block = document.createElement('div');
+            block.classList.add('crypto-block');
+
+            const logoImg = document.createElement('img');
+            logoImg.src = `https://www.cryptocompare.com${crypto.CoinInfo.ImageUrl}`;
+            logoImg.alt = crypto.CoinInfo.FullName + ' logo';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.classList.add('crypto-info');
+
+            const nameDiv = document.createElement('h5');
+            nameDiv.textContent = crypto.CoinInfo.FullName;
+
+            const priceDiv = document.createElement('div');
+            priceDiv.textContent = `Price: $${parseFloat(crypto.RAW.USD.PRICE).toFixed(2)}`;
+
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(priceDiv);
+
+            block.appendChild(logoImg);
+            block.appendChild(infoDiv);
+
+            cryptoContainer.appendChild(block);
+        });
+    }
+
+    async function populateCryptoList() {
+        const cryptoData = await fetchCryptoData();
+        const cryptoList = document.querySelector('#cryptoList');
+
+        cryptoData.forEach(crypto => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('crypto-item');
+
+            const logoImg = document.createElement('img');
+            logoImg.src = `https://www.cryptocompare.com${crypto.CoinInfo.ImageUrl}`;
+            logoImg.alt = crypto.CoinInfo.FullName + ' logo';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.classList.add('crypto-info');
+
+            const nameDiv = document.createElement('div');
+            nameDiv.textContent = crypto.CoinInfo.FullName;
+
+            const priceDiv = document.createElement('div');
+            priceDiv.textContent = `Price: $${parseFloat(crypto.RAW.USD.PRICE).toFixed(2)}`;
+
+            const goToButton = document.createElement('a');
+            goToButton.textContent = 'Подробнее';
+            goToButton.href = `https://www.cryptocompare.com${crypto.CoinInfo.Url}`;
+            goToButton.target = '_blank';
+            goToButton.addEventListener('click', (event) => {
+                event.preventDefault(); // Предотвращаем переход по ссылке
+                showCryptoInfo(crypto); // Вызываем функцию для отображения информации о криптовалюте
+            });
+
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(priceDiv);
+            infoDiv.appendChild(goToButton);
+
+            listItem.appendChild(logoImg);
+            listItem.appendChild(infoDiv);
+
+            cryptoList.appendChild(listItem);
+        });
+    }
+
+    function searchCryptoList() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const listItems = document.querySelectorAll('.crypto-item');
+
+        listItems.forEach(item => {
+            const name = item.querySelector('.crypto-info div').textContent.toUpperCase();
+            if (name.includes(filter)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function showCryptoInfo(crypto) {
+        const cryptoInfoContainer = document.getElementById('cryptoInfoContainer');
+        cryptoInfoContainer.innerHTML = ''; // Очищаем контейнер перед отображением новой информации
+
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('crypto-info');
+
+        const logoImg = document.createElement('img');
+        logoImg.src = `https://www.cryptocompare.com${crypto.CoinInfo.ImageUrl}`;
+        logoImg.alt = crypto.CoinInfo.FullName + ' logo';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.classList.add('crypto-info-name');
+        nameDiv.textContent = crypto.CoinInfo.FullName;
+
+        const marketCapDiv = document.createElement('div');
+        marketCapDiv.classList.add('crypto-info-item');
+        marketCapDiv.textContent = `Рыночная капитализация: $${crypto.RAW.USD.MKTCAP}`;
+
+        const changePercentDiv = document.createElement('div');
+        changePercentDiv.classList.add('crypto-info-item');
+        changePercentDiv.textContent = `Изменение цена (24 часа)%: ${parseFloat(crypto.RAW.USD.CHANGEPCT24HOUR).toFixed(2)}%`;
+
+        const changePriceDiv = document.createElement('div');
+        changePriceDiv.classList.add('crypto-info-item');
+        changePriceDiv.textContent = `Изменение цены (24 часа): $${parseFloat(crypto.RAW.USD.CHANGE24HOUR).toFixed(2)}`;
+
+        const totalVolume24hDiv = document.createElement('div');
+        totalVolume24hDiv.classList.add('crypto-info-item');
+        totalVolume24hDiv.textContent = `Объем торгов (24 часа): $${parseFloat(crypto.RAW.USD.TOTALVOLUME24HTO).toFixed(2)}`;
+
+        const lowDayDiv = document.createElement('div');
+        lowDayDiv.classList.add('crypto-info-item');
+        lowDayDiv.textContent = `Наименьшая цена (24 часа): $${parseFloat(crypto.RAW.USD.LOWDAY).toFixed(2)}`;
+
+        const highDayDiv = document.createElement('div');
+        highDayDiv.classList.add('crypto-info-item');
+        highDayDiv.textContent = `Наибольшая цена (24 часа): $${parseFloat(crypto.RAW.USD.HIGHDAY).toFixed(2)}`;
+
+        // Создаем элемент canvas для графика
+        const chartCanvas = document.createElement('canvas');
+        chartCanvas.id = 'cryptoChart';
+        chartCanvas.width = 400;
+        chartCanvas.height = 200;
+
+        infoDiv.appendChild(logoImg);
+        infoDiv.appendChild(nameDiv);
+        infoDiv.appendChild(marketCapDiv);
+        infoDiv.appendChild(changePercentDiv);
+        infoDiv.appendChild(changePriceDiv);
+        infoDiv.appendChild(totalVolume24hDiv);
+        infoDiv.appendChild(lowDayDiv);
+        infoDiv.appendChild(highDayDiv);
+        cryptoInfoContainer.appendChild(infoDiv);
+    }
+
+    populateTop3CryptoBlocks();
+    populateCryptoList();
+
+    // Обработчик события для поиска по списку криптовалют
+    document.getElementById('searchInput').addEventListener('input', searchCryptoList);
+</script>
+
+<style>
+    .crypto-list {
+        list-style: none;
+        padding: 0;
+        max-height: 500px; /* Фиксированная высота */
+        overflow-y: auto; /* Скроллинг по вертикали */
+    }
+
+    .crypto-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+        .crypto-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+    .crypto-info {
+        flex: 1;
+    }
+
+        .crypto-info div {
+            margin-bottom: 5px;
+        }
+
+
+    .crypto-info-container {
+         /* Ширина карточки */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        margin-top: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .crypto-info {
+        text-align: left; /* Центрирование содержимого */
+        margin-bottom: 15px;
+    }
+
+        .crypto-info img {
+            width: 100px; /* Ширина логотипа */
+            height: auto; /* Сохранение соотношения сторон */
+            display: block; /* Чтобы избежать возможных проблем с отображением */
+            margin: 0 auto 15px; /* Центрирование логотипа */
+        }
+
+    .crypto-info-name {
+        font-weight: bold; /* Жирное начертание для названия */
+    }
+
+    .crypto-info-item {
+        margin-bottom: 5px; /* Промежуток между элементами */
+    }
+</style>

@@ -52,3 +52,65 @@ body {
     font-family: 'GolosText', sans-serif; /* Использование вашего шрифта */
     margin-bottom: 60px;
 }
+
+
+ #searchInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 300px; /* Задайте ширину поля в соответствии с вашим дизайном */
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Добавьте тень для эффекта поднятости */
+    transition: box-shadow 0.3s ease; /* Добавьте плавное изменение тени при фокусе */
+}
+
+#searchInput:focus {
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Увеличьте тень при фокусе */
+}
+
+
+.crypto-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.crypto-block {
+    width: calc(33.33% - 20px); /* Ширина блока на больших экранах */
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+    .crypto-block img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+.crypto-info {
+    display: flex;
+    flex-direction: column;
+}
+
+    .crypto-info div {
+        margin-bottom: 5px;
+    }
+
+/* Медиа-запрос для адаптации блоков на мобильных устройствах */
+@media (max-width: 768px) {
+    .crypto-block {
+        width: calc(50% - 20px); /* Ширина блока на средних экранах */
+    }
+}
+
+@media (max-width: 480px) {
+    .crypto-block {
+        width: calc(100% - 20px); /* Ширина блока на маленьких экранах */
+    }
+}

@@ -1,45 +1,30 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CryptoView.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
-namespace CryptoView.Views.Home
+namespace CryptoView.Controllers
 {
-    public class LargeDealsModel : PageModel
+    public class LargeDealsController : Controller
     {
-        public List<Transaction> LargeTransactions { get; set; }
+        private readonly ILogger<LargeDealsController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        private readonly IHttpClientFactory _clientFactory;
-
-        public LargeDealsModel(IHttpClientFactory clientFactory)
+        public LargeDealsController(ILogger<LargeDealsController> logger, IHttpClientFactory httpClientFactory)
         {
-            _clientFactory = clientFactory;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
-        public async Task OnGet()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                var transactions = await GetLargeTransactions();
-                LargeTransactions = transactions ?? new List<Transaction>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching transactions: {ex.Message}");
-                LargeTransactions = new List<Transaction>(); // Initialize with empty list in case of error
-            }
-        }
-
-        private async Task<List<Transaction>> GetLargeTransactions()
-        {
-            List<Transaction> transactions = new List<Transaction>();
-
-            try
-            {
-                var client = _clientFactory.CreateClient();
+                var largeDealsModel = new LargeDealsModel();
+                var client = _httpClientFactory.CreateClient();
                 string apiKey = "YOUR_API_KEY_HERE";
                 string apiUrl = $"https://api.etherscan.io/api?module=account&action=txlist&address=0x1e0447b19bb6ecfdae1e4ae1694b0c3659614e4e&sort=desc&apikey={apiKey}";
 
@@ -52,9 +37,10 @@ namespace CryptoView.Views.Home
 
                     if (result != null && result.Status == "1" && result.Result != null)
                     {
+                        largeDealsModel.LargeTransactions = new List<Transaction>();
                         foreach (var item in result.Result)
                         {
-                            transactions.Add(new Transaction
+                            largeDealsModel.LargeTransactions.Add(new Transaction
                             {
                                 Hash = item.TransactionHash,
                                 From = item.From,
@@ -67,14 +53,15 @@ namespace CryptoView.Views.Home
                         }
                     }
                 }
+
+                // Подождите, пока данные будут загружены, прежде чем передавать модель представлению
+                return View(largeDealsModel);
             }
             catch (Exception ex)
             {
-                // Handle exception
-                Console.WriteLine($"Error: {ex.Message}");
+                _logger.LogError($"Error fetching large transactions: {ex.Message}");
+                return View(new LargeDealsModel());
             }
-
-            return transactions;
         }
 
         private DateTime UnixTimeStampToDateTime(string unixTimeStamp)
@@ -86,21 +73,10 @@ namespace CryptoView.Views.Home
         }
     }
 
-    public class Transaction
-    {
-        public string Hash { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public string Value { get; set; }
-        public string GasPrice { get; set; }
-        public string GasUsed { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
-
     public class EtherscanResponse
     {
         public string Status { get; set; }
-        public List<TransactionItem> Result { get; set; }
+        public TransactionItem[] Result { get; set; }
     }
 
     public class TransactionItem
