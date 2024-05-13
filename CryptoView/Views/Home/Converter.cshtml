@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .converter-container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: transparent;
+            border: 2px solid black;
+            text-align: center; /* Выравнивание содержимого по центру */
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+            .input-group select,
+            .input-group input[type="number"] {
+                width: calc(50% - 5px);
+                padding: 8px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+        .custom-button {
+            display: inline-block;
+            margin:10px;
+            border: 2px solid #000; /* Ширина и цвет границы */
+            border-radius: 20px; /* Радиус скругления углов */
+            padding: 10px 20px; /* Отступы внутри кнопки */
+            background-color: transparent; /* Прозрачный фон */
+            color: #000; /* Цвет текста */
+            transition: background-color 0.3s, color 0.3s; /* Плавное изменение цвета при наведении */
+        }
+
+    /* Стили         при наведении */
+            .custom-button:hover {
+                background-color: #000; /* Цвет фона при наведении */
+                color: #fff; /* Цвет текста при наведении */
+            }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <div class="input-group">
+            <select id="fromCurrency"></select>
+            <input type="number" id="fromValue" placeholder="Enter value">
+        </div>
+        <button class="custom-button" onclick="swapCurrencies()">Свапнуть</button>
+        <div class="input-group">
+            <select id="toCurrency"></select>
+            <input type="number" id="toValue" placeholder="Converted value" disabled>
+        </div>
+        <button class="custom-button" onclick="convert()">Конвертировать</button>
+    </div>
+
+    <script>
+        // Функция для загрузки списка криптовалют из Cryptocompare API
+        async function loadCurrencies() {
+            try {
+                const response = await fetch('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD');
+                const data = await response.json();
+
+                const fromCurrencySelect = document.getElementById('fromCurrency');
+                const toCurrencySelect = document.getElementById('toCurrency');
+
+                // Очищаем списки перед добавлением новых данных
+                fromCurrencySelect.innerHTML = '';
+                toCurrencySelect.innerHTML = '';
+
+                // Добавляем варианты криптовалют в выпадающие списки
+                data.Data.forEach(currency => {
+                    const option = new Option(`${currency.CoinInfo.FullName} (${currency.CoinInfo.Name})`, currency.CoinInfo.Name);
+                    fromCurrencySelect.add(option);
+                    toCurrencySelect.add(option.cloneNode(true));
+                });
+            } catch (error) {
+                console.error('Error loading currencies:', error);
+            }
+        }
+
+        // Функция для обмена местами выбранных криптовалют
+        function swapCurrencies() {
+            const fromCurrencySelect = document.getElementById('fromCurrency');
+            const toCurrencySelect = document.getElementById('toCurrency');
+            const temp = fromCurrencySelect.value;
+            fromCurrencySelect.value = toCurrencySelect.value;
+            toCurrencySelect.value = temp;
+        }
+
+        // Функция для конвертации криптовалюты
+        async function convert() {
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const fromValue = document.getElementById('fromValue').value;
+
+            try {
+                const response = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${fromCurrency}&tsyms=${toCurrency}`);
+                const data = await response.json();
+
+                const rate = data[toCurrency];
+                const convertedValue = fromValue * rate;
+
+                document.getElementById('toValue').value = convertedValue.toFixed(2);
+            } catch (error) {
+                console.error('Error converting currencies:', error);
+            }
+        }
+
+        // Загружаем список криптовалют при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCurrencies();
+        });
+    </script>
+</body>
+</html>
