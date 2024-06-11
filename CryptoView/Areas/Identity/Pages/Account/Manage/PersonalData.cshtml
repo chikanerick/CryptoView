@@ -14,10 +14,11 @@
             <strong>Удаление этих данных приведет к безвозвратному удалению вашей учетной записи, и ее невозможно будет восстановить.</strong>
         </p>
         <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Загрузить данные</button>
+            <button class="btn custom-button" type="submit">Загрузить данные</button>
         </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-primary">Удалить аккаунт</a>
+        
+        <p style="margin: 20px;">
+            <a id="delete" asp-page="DeletePersonalData" class="btn btn-primary" style="background-color:red;">Удалить аккаунт</a>
         </p>
     </div>
 </div>
